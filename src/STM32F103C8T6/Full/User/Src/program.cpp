@@ -8,7 +8,9 @@
 #include "ssd1306_tests.h"
 #include "ssd1306_fonts.h"
 
-
+#define ADC_REFERENCE_VOLTAGE 3.3
+#define ADC_MAX 0xFFF
+#define VOLTAGE_STR_LEN 5
 
 //Using usart
 #define UART huart1
@@ -36,7 +38,7 @@ const char Text1[] = "Привет из STM32! (def)\n";
 const char Text2[] = "Привет из STM32! (int)\n";
 const char Text3[] = "Привет из STM32! (dma)\n";
 
-char adcStr[7];
+char adcStr[70];
 
 uint32_t adcData[6]; 
 
@@ -68,11 +70,17 @@ void setup( void )
     ssd1306_Init();
 }
 
+void voltageToString(uint32_t adc, char* str)
+{
+   float voltage = adc  * ADC_REFERENCE_VOLTAGE / ADC_MAX;
+   sprintf(str,"%d.%02d ", (uint32_t)voltage, (uint16_t)((voltage - (uint32_t)voltage)*100.));
+}
 
 /**
  * \brief   Выполняется периодически в теле основного цикла.
  *
  */
+
 void loop( void )
 {
     HAL_Delay( 500 );
@@ -97,16 +105,23 @@ void loop( void )
             break;
     } 
 */
-  //%d.%02dV 
-  sprintf(adcStr, "%d \n", adcData[0]);
+
+  for(int i = 0; i < 6; i++)
+  {
+    voltageToString(adcData[i], adcStr + i * VOLTAGE_STR_LEN + 1);
+  }
+
   HAL_UART_Transmit( & UART, ( uint8_t * ) adcStr, sizeof( adcStr ) - 1, 50 );
+  
+  sprintf(adcStr, "\n");
+  HAL_UART_Transmit( & UART, ( uint8_t * ) adcStr, sizeof( adcStr ) - 1, 50 ); 
+
 
   ssd1306_Fill(Black);
   ssd1306_SetCursor(2,0);
   ssd1306_WriteString("Got bear?", Font_11x18, White);
   ssd1306_UpdateScreen();
 }
-
 
 /**
  * \brief   Callback-функция периодического таймера SysTick.
