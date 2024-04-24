@@ -9,9 +9,10 @@
 #include "ssd1306_fonts.h"
 
 #define ADC_REFERENCE_VOLTAGE 3.3
-#define ADC_MAX 0xFFF
+#define ADC_MAX 0xFFF //Max adc value.
 #define VOLTAGE_STR_LEN 5
-
+#define ADC_NUMBER_OF_CHANNELS 8 //Use 8 channels to measure parameters.
+#define USART_STRING_SIZE 70
 //Using usart
 #define UART huart1
 extern ADC_HandleTypeDef hadc1;
@@ -38,9 +39,9 @@ const char Text1[] = "Привет из STM32! (def)\n";
 const char Text2[] = "Привет из STM32! (int)\n";
 const char Text3[] = "Привет из STM32! (dma)\n";
 
-char adcStr[70];
+char usartString[USART_STRING_SIZE]; //The string that will be sent via usart.
 
-uint32_t adcData[6]; 
+uint32_t adcData[ADC_NUMBER_OF_CHANNELS]; //Measured adc values. 
 
 /**
  * \brief   Выполняет инициализацию.
@@ -65,7 +66,7 @@ void setup( void )
 
     HAL_GPIO_WritePin( USART1_DE_GPIO_Port, USART1_DE_Pin, GPIO_PIN_SET );
 
-    HAL_ADC_Start_DMA(&hadc1, adcData, 6); // start adc in DMA mode
+    HAL_ADC_Start_DMA(&hadc1, adcData, ADC_NUMBER_OF_CHANNELS); // start adc in DMA mode
 
     ssd1306_Init();
 }
@@ -73,7 +74,7 @@ void setup( void )
 void voltageToString(uint32_t adc, char* str)
 {
    float voltage = adc  * ADC_REFERENCE_VOLTAGE / ADC_MAX;
-   sprintf(str,"%d.%02d ", (uint32_t)voltage, (uint16_t)((voltage - (uint32_t)voltage)*100.));
+   sprintf(str,"%d.%02d ", (uint32_t)voltage, (uint16_t)((voltage - (uint32_t)voltage) * 100.));
 }
 
 /**
@@ -105,17 +106,16 @@ void loop( void )
             break;
     } 
 */
-
-  for(int i = 0; i < 6; i++)
+  int strPos = 0;
+  for(int i = 0; i < ADC_NUMBER_OF_CHANNELS; i++)
   {
-    voltageToString(adcData[i], adcStr + i * VOLTAGE_STR_LEN + 1);
+    voltageToString(adcData[i], usartString + i * VOLTAGE_STR_LEN + 1);
+    strPos+= VOLTAGE_STR_LEN;
   }
 
-  HAL_UART_Transmit( & UART, ( uint8_t * ) adcStr, sizeof( adcStr ) - 1, 50 );
-  
-  sprintf(adcStr, "\n");
-  HAL_UART_Transmit( & UART, ( uint8_t * ) adcStr, sizeof( adcStr ) - 1, 50 ); 
-
+  sprintf(usartString + strPos + 1, "u\n");
+  HAL_UART_Transmit( & UART, ( uint8_t * ) usartString, sizeof( usartString ), 50 );
+  HAL_Delay(500) ;
 
   ssd1306_Fill(Black);
   ssd1306_SetCursor(2,0);
