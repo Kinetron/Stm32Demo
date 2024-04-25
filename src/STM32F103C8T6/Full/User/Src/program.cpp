@@ -4,6 +4,7 @@
 #include "gpio.h"
 #include "usart.h"
 #include "main.h"
+#include "tim.h"
 #include "ssd1306.h"
 #include "ssd1306_tests.h"
 #include "ssd1306_fonts.h"
@@ -15,7 +16,10 @@
 #define USART_STRING_SIZE 70
 //Using usart
 #define UART huart1
+
 extern ADC_HandleTypeDef hadc1;
+extern IWDG_HandleTypeDef hiwdg;
+extern TIM_HandleTypeDef htim3;
 
 /// Период сигнала, управляющего светодиодом LED_USER, мсек.
 #define LED_USER_PERIOD_MSEC    ( 500 )
@@ -35,10 +39,6 @@ enum TxState
 // Status of the transmission method.
 TxState State = TxState::Default;
 
-const char Text1[] = "Привет из STM32! (def)\n";
-const char Text2[] = "Привет из STM32! (int)\n";
-const char Text3[] = "Привет из STM32! (dma)\n";
-
 char usartString[USART_STRING_SIZE]; //The string that will be sent via usart.
 
 uint32_t adcData[ADC_NUMBER_OF_CHANNELS]; //Measured adc values. 
@@ -49,6 +49,7 @@ uint32_t adcData[ADC_NUMBER_OF_CHANNELS]; //Measured adc values.
  */
 void init( void )
 {
+   
 }
 
 
@@ -69,6 +70,7 @@ void setup( void )
     HAL_ADC_Start_DMA(&hadc1, adcData, ADC_NUMBER_OF_CHANNELS); // start adc in DMA mode
 
     ssd1306_Init();
+    //HAL_TIM_Base_Start_IT(&htim3);
 }
 
 void voltageToString(uint32_t adc, char* str)
@@ -84,12 +86,14 @@ void voltageToString(uint32_t adc, char* str)
 
 void loop( void )
 {
+
+
     HAL_Delay( 500 );
 
-    // Ожидаем окончания передачи пакета.
+    // We are waiting for the end of the packet transmission.
     if ( UART.gState != HAL_UART_STATE_READY ) return;
 /*
-    // Передача строки utf-8 через последовательный порт.
+    //Utf-8 string transmission via serial port.
     switch ( State )
     {
         case TxState::Interrupt:
@@ -121,6 +125,7 @@ void loop( void )
   ssd1306_SetCursor(2,0);
   ssd1306_WriteString("Got bear?", Font_11x18, White);
   ssd1306_UpdateScreen();
+  HAL_IWDG_Refresh(&hiwdg);
 }
 
 /**
@@ -155,5 +160,13 @@ void HAL_UART_TxCpltCallback( UART_HandleTypeDef * huart )
         case TxState::DMA: State = TxState::Default; break;
 
         default: State = TxState::Interrupt; break;
+    }
+}
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+    if (htim->Instance == TIM3)
+    {
+       // HAL_GPIO_TogglePin( LED_USER_GPIO_Port, LED_USER_Pin );
     }
 }
