@@ -19,10 +19,10 @@
 
 extern ADC_HandleTypeDef hadc1;
 extern IWDG_HandleTypeDef hiwdg;
-extern TIM_HandleTypeDef htim3;
+extern TIM_HandleTypeDef htim2;
 
-/// Период сигнала, управляющего светодиодом LED_USER, мсек.
-#define LED_USER_PERIOD_MSEC    ( 500 )
+#define LED_USER_PERIOD_MSEC    ( 500 ) //delete this
+#define SEND_DATA_TO_USART_PERIOD_MSEC 10000
 
 /// Счётчики.
 volatile uint32_t TimeTickMs = 0;
@@ -59,6 +59,8 @@ void init( void )
  */
 void setup( void )
 {
+    HAL_TIM_Base_Start_IT(&htim2);
+
       // Устанавливаем состояние по умолчанию.
     if ( HAL_GPIO_ReadPin( LED_USER_GPIO_Port, LED_USER_Pin ) == GPIO_PIN_SET )
     {
@@ -141,7 +143,7 @@ void HAL_SYSTICK_Callback( void )
         oldTimeTickHSec = TimeTickMs;
 
         // Индикация работы основного цикла.
-        HAL_GPIO_TogglePin( LED_USER_GPIO_Port, LED_USER_Pin );
+       // HAL_GPIO_TogglePin( LED_USER_GPIO_Port, LED_USER_Pin );
     }    
 }
 
@@ -163,10 +165,10 @@ void HAL_UART_TxCpltCallback( UART_HandleTypeDef * huart )
     }
 }
 
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
-{
-    if (htim->Instance == TIM3)
-    {
-       // HAL_GPIO_TogglePin( LED_USER_GPIO_Port, LED_USER_Pin );
-    }
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
+{   
+   if (htim->Instance == TIM2)
+   {
+       HAL_GPIO_TogglePin( LED_USER_GPIO_Port, LED_USER_Pin ); 
+   }
 }
