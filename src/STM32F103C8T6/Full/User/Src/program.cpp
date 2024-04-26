@@ -20,6 +20,7 @@
 extern ADC_HandleTypeDef hadc1;
 extern IWDG_HandleTypeDef hiwdg;
 extern TIM_HandleTypeDef htim2;
+extern TIM_HandleTypeDef htim3;
 
 #define LED_USER_PERIOD_MSEC    ( 500 ) //delete this
 #define SEND_DATA_TO_USART_PERIOD_MSEC 10000
@@ -88,8 +89,6 @@ void voltageToString(uint32_t adc, char* str)
 
 void loop( void )
 {
-
-
     HAL_Delay( 500 );
 
     // We are waiting for the end of the packet transmission.
@@ -130,10 +129,31 @@ void loop( void )
   HAL_IWDG_Refresh(&hiwdg);
 }
 
+
+
+void enableBeeper(bool enabled)
+{
+   GPIO_InitTypeDef GPIO_InitStruct = {0};
+   GPIO_InitStruct.Pin = GPIO_PIN_1;
+   
+   if(enabled)
+   {
+     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+   }
+   else
+   {
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_INPUT;
+   }
+   
+   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+}
 /**
  * \brief   Callback-функция периодического таймера SysTick.
  *
  */
+int beep = 20;
+bool alarm = false;
 void HAL_SYSTICK_Callback( void )
 {
     TimeTickMs++;
@@ -142,8 +162,20 @@ void HAL_SYSTICK_Callback( void )
     {
         oldTimeTickHSec = TimeTickMs;
 
-        // Индикация работы основного цикла.
+        // Indication of the main cycle operation.
        // HAL_GPIO_TogglePin( LED_USER_GPIO_Port, LED_USER_Pin );
+
+    if(beep > 30) beep = 10;
+
+    //beep++;
+
+      __HAL_TIM_SET_AUTORELOAD(&htim3, beep*2);
+      __HAL_TIM_SET_COMPARE(&htim3,TIM_CHANNEL_4, beep);
+
+    enableBeeper(alarm);
+    alarm = !alarm;
+
+
     }    
 }
 

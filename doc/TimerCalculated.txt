@@ -1,0 +1,10 @@
+TIM2:
+
+IST period = (ARR + 1)(PSC + 1)/Fclk
+
+FCLK = 72MHz.
+ And let the Prescaler be 999
+ 
+ IST period = (ARR + 1)(1000)/72Mhz
+ 
+ 0.1sec = 7200*1000/72 000 000.
