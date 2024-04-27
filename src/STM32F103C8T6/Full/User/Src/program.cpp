@@ -22,10 +22,8 @@ extern IWDG_HandleTypeDef hiwdg;
 extern TIM_HandleTypeDef htim2;
 extern TIM_HandleTypeDef htim3;
 
-#define LED_USER_PERIOD_MSEC    ( 500 ) //delete this
-#define SEND_DATA_TO_USART_PERIOD_MSEC 10000
+#define LED_USER_PERIOD_MSEC    ( 500 )
 
-/// Счётчики.
 volatile uint32_t TimeTickMs = 0;
 uint32_t oldTimeTickHSec = 0;
 
@@ -45,7 +43,7 @@ char usartString[USART_STRING_SIZE]; //The string that will be sent via usart.
 uint32_t adcData[ADC_NUMBER_OF_CHANNELS]; //Measured adc values. 
 
 /**
- * \brief   Выполняет инициализацию.
+ * \brief  Performs initialization. 
  *
  */
 void init( void )
@@ -53,16 +51,15 @@ void init( void )
    
 }
 
-
 /**
- * \brief   Выполняет дополнительные настройки.
+ * \brief  Performs additional settings.
  *
  */
 void setup( void )
 {
     HAL_TIM_Base_Start_IT(&htim2);
 
-      // Устанавливаем состояние по умолчанию.
+    // Setting the default state.  
     if ( HAL_GPIO_ReadPin( LED_USER_GPIO_Port, LED_USER_Pin ) == GPIO_PIN_SET )
     {
         HAL_GPIO_WritePin( LED_USER_GPIO_Port, LED_USER_Pin, GPIO_PIN_RESET );
@@ -83,7 +80,7 @@ void voltageToString(uint32_t adc, char* str)
 }
 
 /**
- * \brief   Выполняется периодически в теле основного цикла.
+ * \brief   It is performed periodically in the body of the main loop.
  *
  */
 
@@ -129,8 +126,6 @@ void loop( void )
   HAL_IWDG_Refresh(&hiwdg);
 }
 
-
-
 void enableBeeper(bool enabled)
 {
    GPIO_InitTypeDef GPIO_InitStruct = {0};
@@ -149,7 +144,7 @@ void enableBeeper(bool enabled)
    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 }
 /**
- * \brief   Callback-функция периодического таймера SysTick.
+ * \brief   Callback is a function of the periodic timer sytick.
  *
  */
 int beep = 20;
@@ -174,15 +169,13 @@ void HAL_SYSTICK_Callback( void )
 
     enableBeeper(alarm);
     alarm = !alarm;
-
-
     }    
 }
 
 /**
- * \brief   Callback-функция завершения передачи данных.
+ * \brief   Callback is the data transfer termination function.
  *
- * \param   huart   указатель на структуру параметров конфигурации типа UART_HandleTypeDef.
+ * \param   huart
  *
  */
 void HAL_UART_TxCpltCallback( UART_HandleTypeDef * huart )
