@@ -8,15 +8,22 @@
 #include "ssd1306_tests.h"
 #include "ssd1306_fonts.h"
 
+#define ADC_NUMBER_OF_CHANNELS 9 //Use 9 channels to measure parameters.
 #define LED_USER_PERIOD_MSEC  ( 500 )
 #define USART_STRING_SIZE 70
+#define UART huart1
+#define ADC_REFERENCE_VOLTAGE 3.3
+#define ADC_MAX 0xFFF //Max adc value.
+#define VOLTAGE_STR_LEN 5
 
 extern IWDG_HandleTypeDef hiwdg;
 extern TIM_HandleTypeDef htim3;
-#define UART huart1
+extern ADC_HandleTypeDef hadc1;
 
 volatile uint32_t TimeTickMs = 0;
 uint32_t oldTimeTickHSec = 0;
+
+uint32_t adcData[ADC_NUMBER_OF_CHANNELS]; //Measured adc values. 
 
 bool logoSwith = false;
 
@@ -48,6 +55,8 @@ void init( void )
  */
 void setup( void )
 {
+    HAL_ADC_Start_DMA(&hadc1, adcData, ADC_NUMBER_OF_CHANNELS); // start adc in DMA mode
+
     // Setting the default state.  
     if ( HAL_GPIO_ReadPin( USER_LED_GPIO_Port, USER_LED_Pin ) == GPIO_PIN_SET )
     {
@@ -55,8 +64,6 @@ void setup( void )
     }
     ssd1306_Init();
 }
-
-
 void printWine()
 {
  if(logoSwith)
@@ -81,6 +88,12 @@ void printWine()
      }   
 }
 
+void voltageToString(uint32_t adc, char* str)
+{
+   float voltage = adc  * ADC_REFERENCE_VOLTAGE / ADC_MAX;
+   sprintf(str,"%d.%02d ", (uint32_t)voltage, (uint16_t)((voltage - (uint32_t)voltage) * 100.));
+}
+
 /**
  * \brief   It is performed periodically in the body of the main loop.
  *
@@ -100,8 +113,16 @@ void loop( void )
         // We are waiting for the end of the packet transmission.
     if (UART.gState != HAL_UART_STATE_READY ) return;
 
-   sprintf(usartString, "Hi all \n");
-   HAL_UART_Transmit( & UART, ( uint8_t * ) usartString, sizeof( usartString ), 50 );
+  int strPos = 0;
+  for(int i = 0; i < ADC_NUMBER_OF_CHANNELS; i++)
+  {
+    voltageToString(adcData[i], usartString + i * VOLTAGE_STR_LEN + 1);
+    strPos+= VOLTAGE_STR_LEN;
+  }
+
+  HAL_IWDG_Refresh(&hiwdg);
+  sprintf(usartString + strPos + 1, "u\n");
+  HAL_UART_Transmit( & UART, ( uint8_t * ) usartString, sizeof( usartString ), 50 );
 }
 
 void enableBeeper(bool enabled)
