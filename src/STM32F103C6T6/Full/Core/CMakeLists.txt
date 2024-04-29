@@ -8,5 +8,6 @@ target_sources(${PROJECT_NAME} PRIVATE
     Src/stm32f1xx_hal_msp.c
     Src/stm32f1xx_it.c
     Src/gpio.c
+    Src/tim.c
     Src/main.c
 )
