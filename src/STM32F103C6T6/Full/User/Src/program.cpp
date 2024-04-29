@@ -3,13 +3,19 @@
 #include <string.h>
 #include "gpio.h"
 #include "main.h"
+#include "ssd1306.h"
+#include "ssd1306_tests.h"
+#include "ssd1306_fonts.h"
 
 #define LED_USER_PERIOD_MSEC  ( 500 )
+
+extern IWDG_HandleTypeDef hiwdg;
+extern TIM_HandleTypeDef htim3;
 
 volatile uint32_t TimeTickMs = 0;
 uint32_t oldTimeTickHSec = 0;
 
-extern TIM_HandleTypeDef htim3;
+bool logoSwith = false;
 
 /**
  * \brief  Performs initialization. 
@@ -31,6 +37,8 @@ void setup( void )
     {
         HAL_GPIO_WritePin( USER_LED_GPIO_Port, USER_LED_Pin, GPIO_PIN_RESET );
     }
+
+    ssd1306_Init();
 }
 
 /**
@@ -42,6 +50,8 @@ void loop( void )
 {
     HAL_Delay( 250 );
      //HAL_GPIO_TogglePin( USER_LED_GPIO_Port, USER_LED_Pin);
+
+    HAL_IWDG_Refresh(&hiwdg);
 }
 
 void enableBeeper(bool enabled)
@@ -74,7 +84,6 @@ void HAL_SYSTICK_Callback( void )
 
         // Indication of the main cycle operation.
       HAL_GPIO_TogglePin( USER_LED_GPIO_Port, USER_LED_Pin);
-    //beep++;
    
     }    
 }
@@ -94,5 +103,21 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
 
     enableBeeper(alarm);
     alarm = !alarm;
+
+     ssd1306_Fill(Black);
+     ssd1306_SetCursor(2,0);
+
+     if(logoSwith)
+     {
+       logoSwith = false;
+       ssd1306_WriteString("Got beer?", Font_11x18, White);
+     }
+     else
+     {
+       ssd1306_WriteString("Got beer ?", Font_11x18, White); 
+       logoSwith = true;
+     }
+  
+     ssd1306_UpdateScreen();
    }
 }

@@ -39,7 +39,7 @@ find_package(HAL COMPONENTS STM32${MCU_FAMILY} REQUIRED)
 add_executable(${PROJECT_NAME})
 
 # Подключаем необходимые библиотеки.
-#add_subdirectory(ssd1306)
+add_subdirectory(ssd1306)
 add_subdirectory(Core)
 add_subdirectory(User)
 
