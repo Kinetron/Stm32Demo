@@ -38,7 +38,7 @@ void setup( void )
 
 void loop( void )
 {
-    HAL_Delay( 100 );
+    HAL_Delay( 250 );
       HAL_GPIO_TogglePin( USER_LED_GPIO_Port, USER_LED_Pin);
 }
 
