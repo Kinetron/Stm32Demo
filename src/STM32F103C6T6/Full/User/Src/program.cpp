@@ -7,6 +7,7 @@
 #include "ssd1306.h"
 #include "ssd1306_tests.h"
 #include "ssd1306_fonts.h"
+#include "commands_decoder.h"
 
 #define ADC_NUMBER_OF_CHANNELS 9 //Use 9 channels to measure parameters.
 #define LED_USER_PERIOD_MSEC  ( 500 )
@@ -38,7 +39,6 @@ enum TxState
 // Status of the transmission method.
 TxState State = TxState::Default;
 
-
 char usartString[USART_STRING_SIZE]; //The string that will be sent via usart.
 /**
  * \brief  Performs initialization. 
@@ -56,6 +56,7 @@ void init( void )
 void setup( void )
 {
     HAL_ADC_Start_DMA(&hadc1, adcData, ADC_NUMBER_OF_CHANNELS); // start adc in DMA mode
+    commands_decoder_init();
 
     // Setting the default state.  
     if ( HAL_GPIO_ReadPin( USER_LED_GPIO_Port, USER_LED_Pin ) == GPIO_PIN_SET )
@@ -64,6 +65,7 @@ void setup( void )
     }
     ssd1306_Init();
 }
+
 void printWine()
 {
  if(logoSwith)
@@ -106,9 +108,9 @@ void loop( void )
 
     HAL_IWDG_Refresh(&hiwdg);
 
-    ssd1306_Fill(Black);
-    printWine();     
-    ssd1306_UpdateScreen();
+    //ssd1306_Fill(Black);
+    //printWine();     
+    //ssd1306_UpdateScreen();
 
         // We are waiting for the end of the packet transmission.
     if (UART.gState != HAL_UART_STATE_READY ) return;
@@ -154,12 +156,10 @@ void HAL_SYSTICK_Callback( void )
         oldTimeTickHSec = TimeTickMs;
 
         // Indication of the main cycle operation.
-      HAL_GPIO_TogglePin( USER_LED_GPIO_Port, USER_LED_Pin);
+      //HAL_GPIO_TogglePin( USER_LED_GPIO_Port, USER_LED_Pin);
    
     }    
 }
-
-
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
 {   
@@ -179,4 +179,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
 
   
    }
+}
+
+//When all data from usart is received, an interrupt will be triggered.
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+  receive_byte();
 }
