@@ -11,5 +11,6 @@ target_sources(${PROJECT_NAME} PRIVATE
     Src/gpio.c
     Src/tim.c
     Src/i2c.c
+    Src/usart.c
     Src/main.c
 )

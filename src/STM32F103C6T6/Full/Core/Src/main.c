@@ -21,6 +21,7 @@
 #include "i2c.h"
 #include "iwdg.h"
 #include "tim.h"
+#include "usart.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
@@ -93,6 +94,7 @@ int main(void)
   MX_TIM3_Init();
   MX_I2C1_Init();
   MX_IWDG_Init();
+  MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
   HAL_TIM_Base_Start_IT(&htim2);
   HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_4); 
