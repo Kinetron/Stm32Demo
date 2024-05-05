@@ -8,6 +8,9 @@
 #include "ssd1306_tests.h"
 #include "ssd1306_fonts.h"
 #include "commands_decoder.h"
+#include "fee.h"
+#include "soft_timers.h"
+#include "stdio.h"
 
 #define ADC_NUMBER_OF_CHANNELS 9 //Use 9 channels to measure parameters.
 #define LED_USER_PERIOD_MSEC  ( 500 )
@@ -26,6 +29,8 @@ uint32_t oldTimeTickHSec = 0;
 
 uint32_t adcData[ADC_NUMBER_OF_CHANNELS]; //Measured adc values. 
 
+char PassWord_W[10] = {"ABC123xyz"};
+char PassWord_R[9];
 bool logoSwith = false;
 
 // Options for the status of the transmission method.
@@ -64,7 +69,20 @@ void setup( void )
         HAL_GPIO_WritePin( USER_LED_GPIO_Port, USER_LED_Pin, GPIO_PIN_RESET );
     }
     ssd1306_Init();
+
+   HAL_IWDG_Refresh(&hiwdg); 
+  //FEE_Write(FEE_START_ADDRESS, (uint16_t*)PassWord_W, sizeof(char)*9);
+  FEE_Read(FEE_START_ADDRESS, (uint16_t*)PassWord_R, sizeof(char)*9);
+  sprintf(usartString, "Read= %s\r\n", PassWord_R);
+  HAL_UART_Transmit( & UART, ( uint8_t * ) usartString, strlen(usartString), 50 );
+  HAL_Delay(500);
+
+   // uint8_t *buff = flash_read_test();
+     
+    //HAL_UART_Transmit(&UART, buff, 24, 50);
+    //flash_write_test();
 }
+
 
 void printWine()
 {
@@ -112,8 +130,9 @@ void loop( void )
     //printWine();     
     //ssd1306_UpdateScreen();
 
-        // We are waiting for the end of the packet transmission.
-    if (UART.gState != HAL_UART_STATE_READY ) return;
+  if(!needSendDataToUSART()) return ;
+  // We are waiting for the end of the packet transmission.
+  if (UART.gState != HAL_UART_STATE_READY ) return;
 
   int strPos = 0;
   for(int i = 0; i < ADC_NUMBER_OF_CHANNELS; i++)
@@ -151,10 +170,10 @@ void HAL_SYSTICK_Callback( void )
 {
     TimeTickMs++;
 
-    if ( TimeTickMs - oldTimeTickHSec > LED_USER_PERIOD_MSEC )
+    if (TimeTickMs - oldTimeTickHSec > 1000)
     {
         oldTimeTickHSec = TimeTickMs;
-
+        secondTickHandler();
         // Indication of the main cycle operation.
       //HAL_GPIO_TogglePin( USER_LED_GPIO_Port, USER_LED_Pin);
    

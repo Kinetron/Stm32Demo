@@ -42,6 +42,8 @@ add_executable(${PROJECT_NAME})
 add_subdirectory(ssd1306)
 add_subdirectory(commands_decoder)
 add_subdirectory(Core)
+add_subdirectory(Flash)
+add_subdirectory(SoftTimers)
 add_subdirectory(User)
 
 target_link_libraries(${PROJECT_NAME}
@@ -61,6 +63,8 @@ target_link_libraries(${PROJECT_NAME}
     CMSIS::STM32::${MCU_TYPE}
     STM32::Nano
     STM32::NoSys
+    HAL::STM32::${MCU_FAMILY}::FLASH
+    HAL::STM32::${MCU_FAMILY}::FLASHEx
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})

@@ -21,23 +21,35 @@ void commands_decoder_init(void)
 
 void receive_byte(void)
 {
-   if(usartRx != 0x0D)
+   if(usartRx != 0x0D) //enter
    {
        commands_decoder_add_to_buff();
-       ssd1306_Fill(Black);
-       ssd1306_SetCursor(2,0);
-       ssd1306_WriteString((const char *)usartBuffer, Font_7x10, White);
-       ssd1306_UpdateScreen();
+       //ssd1306_Fill(Black);
+       //ssd1306_SetCursor(2,0);
+       //ssd1306_WriteString((const char *)usartBuffer, Font_7x10, White);
+       //ssd1306_UpdateScreen();
 
        return;
-   }
+   }   
 
-   if(strcmp((const char *)usartBuffer, "reset") == 0)
+   const char *command = (const char *)usartBuffer;
+   if(strcmp(command, "reset") == 0)
    {
        HAL_GPIO_TogglePin( USER_LED_GPIO_Port, USER_LED_Pin);
        HAL_NVIC_SystemReset();
+       return;
    }
-}
+   else if(memcmp(command,  ADC_CALIBRATION_COMMAND , strlen(ADC_CALIBRATION_COMMAND)) == 0)
+   {
+       ssd1306_Fill(Black);
+       ssd1306_SetCursor(2,0);
+       ssd1306_WriteString("adc_calibration", Font_7x10, White);
+       ssd1306_UpdateScreen();
+   }
+
+   memset(usartBuffer, 0, USART_BUFFER_SIZE); 
+   usartBufferPos = 0;
+ }
 
 void commands_decoder_add_to_buff(void)
 {
@@ -51,4 +63,9 @@ void commands_decoder_add_to_buff(void)
      usartBufferPos = 0;
      usartBuffer[usartBufferPos] = usartRx;
    }
+}
+
+void clear_buffer(void)
+{
+
 }
