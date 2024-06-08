@@ -22,6 +22,8 @@
 
 extern IWDG_HandleTypeDef hiwdg;
 extern TIM_HandleTypeDef htim3;
+
+
 extern ADC_HandleTypeDef hadc1;
 
 volatile uint32_t TimeTickMs = 0;
@@ -167,6 +169,8 @@ void enableBeeper(bool enabled)
 
 int beep = 20;
 bool alarm = false;
+int period = 100;
+int interval = 0;
 void HAL_SYSTICK_Callback( void )
 {
     TimeTickMs++;
@@ -174,9 +178,17 @@ void HAL_SYSTICK_Callback( void )
     if (TimeTickMs - oldTimeTickHSec > 1000)
     {
         oldTimeTickHSec = TimeTickMs;
-        secondTickHandler();
+
+        if(interval < 12) interval ++;
+        else
+        {
+          period+=10;        
+          TIM2->ARR = period;
+          interval = 0;
+
+        } 
         // Indication of the main cycle operation.
-      //HAL_GPIO_TogglePin( USER_LED_GPIO_Port, USER_LED_Pin);
+     
    
     }    
 }

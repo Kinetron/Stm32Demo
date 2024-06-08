@@ -42,9 +42,79 @@ void MX_TIM2_Init(void)
 
   /* USER CODE END TIM2_Init 1 */
   htim2.Instance = TIM2;
+  /*
+  119.6061
   htim2.Init.Prescaler = 999; //999 -57hz
+  htim2.Init.Period = 300;  //719 - 57hz  71 - 570hz  100 - 400hz 200 - 204hz
+  */
+   /*
+   1196.062
+  htim2.Init.Prescaler = 99; //999 -57hz
+  htim2.Init.Period = 300;  //719 - 57hz  71 - 570hz  100 - 400hz 200 - 204hz
+  */
+  /*
+  897.791
+  htim2.Init.Prescaler = 99; //999 -57hz
+  htim2.Init.Period = 400;  //719 - 57hz  71 - 570hz  100 - 400hz 200 - 204hz
+*/
+    
+/*
+718.591
+  htim2.Init.Prescaler = 99; 
+  htim2.Init.Period = 500;  
+*/
+    
+    /*
+    599.025
+      htim2.Init.Prescaler = 99; 
+  htim2.Init.Period = 600; 
+    */
+
+
+   /*
+   513.572
+     htim2.Init.Prescaler = 99; 
+  htim2.Init.Period = 700; 
+   */
+
+    /*
+   449.456
+     htim2.Init.Prescaler = 99; 
+  htim2.Init.Period = 800; 
+   */
+
+    /*
+   399.572
+     htim2.Init.Prescaler = 99; 
+  htim2.Init.Period = 900; 
+   */
+
+     /*
+359.655
+     htim2.Init.Prescaler = 99; 
+  htim2.Init.Period = 1000; 
+   */
+
+     /*
+326.988
+     htim2.Init.Prescaler = 99; 
+  htim2.Init.Period = 1100; 
+   */
+ 
+     /*
+239.849
+     htim2.Init.Prescaler = 99; 
+  htim2.Init.Period = 1500; 
+   */
+    /*
+179.9170
+     htim2.Init.Prescaler = 99; 
+  htim2.Init.Period = 2000; 
+   */
+
+  htim2.Init.Prescaler = 99; 
+  htim2.Init.Period = 100;//2000;  
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim2.Init.Period = 200;  //719 - 57hz  71 - 570hz  100 - 400hz 200 - 204hz
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
