@@ -197,22 +197,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
 {   
    if (htim->Instance == TIM2)
    {
-      HAL_GPIO_TogglePin( USER_LED_GPIO_Port, USER_LED_Pin);
-      return;
-
-    // HAL_GPIO_TogglePin( USER_LED_GPIO_Port, USER_LED_Pin);
-    // Indication of the main cycle operation.
-         if(beep > 30) beep = 10;
-
-    beep++;
-//HAL_GPIO_TogglePin( USER_LED_GPIO_Port, USER_LED_Pin);
-      //__HAL_TIM_SET_AUTORELOAD(&htim3, beep*2);
-     // __HAL_TIM_SET_COMPARE(&htim3,TIM_CHANNEL_4, beep);
-
-    //enableBeeper(alarm);
-    alarm = !alarm;
-
-  
+     // HAL_GPIO_TogglePin( USER_LED_GPIO_Port, USER_LED_Pin);
+      HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_11);  
    }
 }
 
