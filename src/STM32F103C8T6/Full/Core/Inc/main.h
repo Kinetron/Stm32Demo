@@ -61,8 +61,6 @@ void loop( void );
 /* Private defines -----------------------------------------------------------*/
 #define LED_USER_Pin GPIO_PIN_13
 #define LED_USER_GPIO_Port GPIOC
-#define USART1_DE_Pin GPIO_PIN_11
-#define USART1_DE_GPIO_Port GPIOA
 
 /* USER CODE BEGIN Private defines */
 

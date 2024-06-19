@@ -67,7 +67,6 @@ void MX_TIM2_Init(void)
   /* USER CODE END TIM2_Init 2 */
 
 }
-
 /* TIM3 init function */
 void MX_TIM3_Init(void)
 {
@@ -86,7 +85,7 @@ void MX_TIM3_Init(void)
   htim3.Instance = TIM3;
   htim3.Init.Prescaler = 888;
   htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim3.Init.Period = 5000;
+  htim3.Init.Period = 20;
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
