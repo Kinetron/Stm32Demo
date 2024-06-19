@@ -7,8 +7,8 @@ set(MCU STM32F103C8T)
 string(SUBSTRING ${MCU} 5 2 MCU_FAMILY)
 string(SUBSTRING ${MCU} 5 6 MCU_MODEL)
 
-set(CMAKE_TOOLCHAIN_FILE "${CMAKE_CURRENT_SOURCE_DIR}/../../modules/stm32-cmake/cmake/stm32_gcc.cmake")
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/../../tools")
+set(CMAKE_TOOLCHAIN_FILE "${CMAKE_CURRENT_SOURCE_DIR}/../modules/stm32-cmake/cmake/stm32_gcc.cmake")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/../tools")
 
 # В качестве имени проекта используем имя папки (см. tasks.json и launch.json).
 get_filename_component(BASE_FOLDER ${CMAKE_CURRENT_SOURCE_DIR} NAME)
@@ -51,6 +51,7 @@ target_link_libraries(${PROJECT_NAME}
 	HAL::STM32::${MCU_FAMILY}::USART
     HAL::STM32::${MCU_FAMILY}::DMA
     HAL::STM32::${MCU_FAMILY}::ADC
+    HAL::STM32::${MCU_FAMILY}::ADCEx
 	HAL::STM32::${MCU_FAMILY}::IWDG
 	HAL::STM32::${MCU_FAMILY}::TIM
 	HAL::STM32::${MCU_FAMILY}::TIMEx

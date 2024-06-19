@@ -12,7 +12,7 @@
 #define ADC_REFERENCE_VOLTAGE 3.3
 #define ADC_MAX 0xFFF //Max adc value.
 #define VOLTAGE_STR_LEN 5
-#define ADC_NUMBER_OF_CHANNELS 8 //Use 8 channels to measure parameters.
+#define ADC_NUMBER_OF_CHANNELS 1 //Use 8 channels to measure parameters.
 #define USART_STRING_SIZE 70
 //Using usart
 #define UART huart1
@@ -57,7 +57,7 @@ void init( void )
  */
 void setup( void )
 {
-    HAL_TIM_Base_Start_IT(&htim2);
+    //HAL_TIM_Base_Start_IT(&htim2);
 
     // Setting the default state.  
     if ( HAL_GPIO_ReadPin( LED_USER_GPIO_Port, LED_USER_Pin ) == GPIO_PIN_SET )
@@ -68,15 +68,6 @@ void setup( void )
     HAL_GPIO_WritePin( USART1_DE_GPIO_Port, USART1_DE_Pin, GPIO_PIN_SET );
 
     HAL_ADC_Start_DMA(&hadc1, adcData, ADC_NUMBER_OF_CHANNELS); // start adc in DMA mode
-
-    ssd1306_Init();
-    //HAL_TIM_Base_Start_IT(&htim3);
-}
-
-void voltageToString(uint32_t adc, char* str)
-{
-   float voltage = adc  * ADC_REFERENCE_VOLTAGE / ADC_MAX;
-   sprintf(str,"%d.%02d ", (uint32_t)voltage, (uint16_t)((voltage - (uint32_t)voltage) * 100.));
 }
 
 /**
@@ -86,7 +77,9 @@ void voltageToString(uint32_t adc, char* str)
 
 void loop( void )
 {
-    HAL_Delay( 500 );
+  HAL_IWDG_Refresh(&hiwdg); 
+  HAL_Delay(100);
+  HAL_IWDG_Refresh(&hiwdg); 
 
     // We are waiting for the end of the packet transmission.
     if ( UART.gState != HAL_UART_STATE_READY ) return;
@@ -108,22 +101,9 @@ void loop( void )
             break;
     } 
 */
-  int strPos = 0;
-  for(int i = 0; i < ADC_NUMBER_OF_CHANNELS; i++)
-  {
-    voltageToString(adcData[i], usartString + i * VOLTAGE_STR_LEN + 1);
-    strPos+= VOLTAGE_STR_LEN;
-  }
-
-  sprintf(usartString + strPos + 1, "u\n");
+  HAL_GPIO_TogglePin( LED_USER_GPIO_Port, LED_USER_Pin ); 
+  sprintf(usartString,"%d\n", adcData[0]);
   HAL_UART_Transmit( & UART, ( uint8_t * ) usartString, sizeof( usartString ), 50 );
-  HAL_Delay(500) ;
-
-  ssd1306_Fill(Black);
-  ssd1306_SetCursor(2,0);
-  ssd1306_WriteString("Got bear?", Font_11x18, White);
-  ssd1306_UpdateScreen();
-  HAL_IWDG_Refresh(&hiwdg);
 }
 
 void enableBeeper(bool enabled)
@@ -194,6 +174,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
 {   
    if (htim->Instance == TIM2)
    {
-       HAL_GPIO_TogglePin( LED_USER_GPIO_Port, LED_USER_Pin ); 
+       //HAL_GPIO_TogglePin( LED_USER_GPIO_Port, LED_USER_Pin ); 
    }
 }
